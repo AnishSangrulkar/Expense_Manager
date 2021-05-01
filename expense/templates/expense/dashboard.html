@@ -1,0 +1,196 @@
+{% extends "expense/base.html" %}
+{% block content %}
+<div> 
+  <p style="font-size: 23;color: darkslategray;font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;">       Today's Total = Rs. {{todays}}<br>This Week's Total = Rs. {{weeks}}</p>
+</div>
+<br>
+<div class="col-sm-4">
+    <form method="POST">
+      {% csrf_token %}
+      <fieldset class="form-group">
+          <legend class="border-bottom mb-4">Add your expenses here...</legend>
+          {{ form.as_p }}
+      </fieldset>
+      <div class="form-group">
+          <button class="btn btn-info" type="submit">Add</button>
+      </div>
+    </form>
+</div>
+<br>
+
+
+{% if groceries %}
+<div class="col-sm-8">
+    <h5><strong>Groceries and Eatables</strong></h5>
+    <table id="table_id" class="content-table">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Price(Rs)</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+            {% for exp in groceries %}
+                <tr>
+                    <td>{{exp.item}}</td>
+                    <td>{{exp.price}}</td>
+                    <td>{{exp.date|date:"d-m-Y"}}</td>
+                    <td>{{exp.time}}</td>
+                    <td><a class="btn btn-secondary btn-sm" href="{% url 'update' exp.id %}">Edit</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+      </table>
+<br>
+</div>
+{% endif %}
+
+{% if others %}
+<div class="col-sm-8">
+  <h5><strong>Others : Cloths, Electronics, Home Appliances...</strong></h5>
+  <table id="table_id" class="content-table">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Price(Rs)</th>
+          <th>Date</th>
+          <th>Time</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for exp in others %}
+            <tr>
+                <td>{{exp.item}}</td>
+                <td>{{exp.price}}</td>
+                <td>{{exp.date|date:"d-m-Y"}}</td>
+                <td>{{exp.time}}</td>
+                <td><a class="btn btn-secondary btn-sm" href="{% url 'update' exp.id %}">Edit</a>
+                </td>
+            </tr>
+        {% endfor %}
+      
+    </tbody>
+    </table>
+  </div>
+<br>
+{% endif %}
+
+{% if trip %}
+<div class="col-sm-8">
+  <h5><strong>Trips and Eating outs</strong></h5>
+  <table id="table_id" class="content-table">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Price(Rs)</th>
+          <th>Date</th>
+          <th>Time</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+          {% for exp in trip %}
+              <tr>
+                  <td>{{exp.item}}</td>
+                  <td>{{exp.price}}</td>
+                  <td>{{exp.date|date:"d-m-Y"}}</td>
+                  <td>{{exp.time}}</td>
+                  <td><a class="btn btn-secondary btn-sm" href="{% url 'update' exp.id %}">Edit</a>
+                  </td>
+              </tr>
+          {% endfor %}
+      </tbody>
+    </table>
+  </div>
+<br>
+{% endif %}
+
+{% if fixed %}
+<div class="col-sm-8">
+  <h5><strong>Fixed Expenses : Rent, Utility, Insurance...</strong></h5>
+  <table id="table_id" class="content-table">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Price(Rs)</th>
+          <th>Date</th>
+          <th>Time</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+       
+          {% for exp in fixed %}
+              <tr>
+                  <td>{{exp.item}}</td>
+                  <td>{{exp.price}}</td>
+                  <td>{{exp.date|date:"d-m-Y"}}</td>
+                  <td>{{exp.time}}</td>
+                  <td><a class="btn btn-secondary btn-sm" href="{% url 'update' exp.id %}">Edit</a>
+                  </td>
+              </tr>
+          {% endfor %}
+        
+      </tbody>
+    </table>
+  </div>
+<br>
+{% endif %}
+
+{% if ent %}
+<div class="col-sm-8">
+  <h5><strong>Hobbies and Entertainment</strong></h5>
+  <table id="table_id" class="content-table">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Price(Rs)</th>
+          <th>Date</th>
+          <th>Time</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+          {% for exp in ent %}
+              <tr>
+                  <td>{{exp.item}}</td>
+                  <td>{{exp.price}}</td>
+                  <td>{{exp.date|date:"d-m-Y"}}</td>
+                  <td>{{exp.time}}</td>
+                  <td><a class="btn btn-secondary btn-sm" href="{% url 'update' exp.id %}">Edit</a>
+                  </td>
+              </tr>
+          {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endif %}
+{% endblock content %}
+{% block js %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/jszip-2.5.0/dt-1.10.18/af-2.3.0/b-1.5.2/b-colvis-1.5.2/b-flash-1.5.2/b-html5-1.5.2/b-print-1.5.2/cr-1.5.0/fh-3.1.4/r-2.2.2/datatables.min.css"/>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/v/dt/jszip-2.5.0/dt-1.10.18/af-2.3.0/b-1.5.2/b-colvis-1.5.2/b-flash-1.5.2/b-html5-1.5.2/b-print-1.5.2/cr-1.5.0/fh-3.1.4/r-2.2.2/datatables.min.js"></script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.4/moment.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/plug-ins/1.10.19/sorting/datetime-moment.js"></script>
+<script>
+    $(document).ready( function () {
+      $.fn.dataTable.moment( 'DD-MM-YYYY' );
+    $('table.content-table').DataTable({
+    //dom: 'B<"clear">lfrtip',
+    /*buttons: {
+        name: 'primary',
+         buttons: []
+        }*/}
+    );
+} );
+</script>
+</div>
+{% endblock js %}

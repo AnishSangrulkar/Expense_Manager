@@ -1,0 +1,215 @@
+{% extends "expense/base.html" %}
+{% block content %}
+{% if start_date and filter_list %}
+{% elif start_date %}
+    <div> 
+        <p style="font-size: 23;color: darkslategray;font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;">No expenditure between {{start_date|date:"d-M-Y"}} and {{end_date|date:"d-M-Y"}} has been registered</p>
+    </div>
+{% endif %}
+<br>
+<div class="col-sm-8">
+    <div>
+        <form method="POST">
+            {% csrf_token %}
+            <fieldset class="form-group">
+                <legend class="border-bottom mb-4">Enter the following fields to get filtered spendings Data (<small>Note: Item is an optional field</small>)</legend>
+                {{ form.as_p }}
+            </fieldset>
+            <div class="form-group">
+                <button class="btn btn-info" type="submit">Get Data</button>
+            </div>
+        </form>
+    </div>
+    {% if filter_list %}
+    <table id="table_id" class="content-table">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Price(Rs)</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Category</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+            {% for exp in filter_list %}
+                <tr>
+                    <td>{{exp.item}}</td>
+                    <td>{{exp.price}}</td>
+                    <td>{{exp.date|date:"d-m-Y"}}</td>
+                    <td>{{exp.time}}</td>
+                    <td>{{exp.category}}</td>
+                    <td><a class="btn btn-secondary btn-sm" href="{% url 'update' exp.id %}">Edit</a>
+                    </td>
+                </tr>
+            {% endfor %}
+            
+        </tbody>
+        <tbody>
+          <tr>
+            <td>Total amount</td>
+            <td><strong>Rs.{{total_spend}}</strong></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+      {% endif %}
+    {% if filter_list %}
+      <br>
+      <h2>Graphical representation</h2>
+      <br>
+      <div class="chart-container">
+        <div style="background: whitesmoke;border-radius: 1px;border-style:solid;border-color:darkblue;height: 500px;width: 950px;">
+          <canvas id="category_pie"></canvas>
+        </div>
+        <br><br>
+        <div style="background: white;border-radius: 1px;border-style:solid;border-color:darkblue;height: 500px;width: 1000px;">
+          <canvas id="weekday_bar"></canvas>
+        </div>
+        <br><br>
+      </div>
+{% endif %}
+</div>
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
+<!--Date vs Expense-->
+<!--<script>
+    new Chart(document.getElementById("date_vs_expense"), {
+    type: 'line',
+    data: {
+      labels: [{% for l in date_exp.labels %}"{{l}}",{% endfor %}],
+      xAxisID: "Date of month",
+      yAxisID: "Amount spent",
+      datasets: [
+        {
+          label: 'Expense amount',
+          borderColor: 'blue',
+          data: [{% for val in date_exp.value %}"{{val}}",{% endfor %}]
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      legend: {
+        position: 'top',
+      },
+      title: {
+        display: true,
+        text: 'Expense amount as per date',
+        fontSize: 18,
+      },
+      scales: {
+        xAxes:[{
+          display:true,
+          scaleLabel:{
+            display:true,
+          }
+        }
+        ],
+        yAxes:[{
+          display:true,
+          scaleLabel:{
+            display:true,
+            labelString: 'Spendings per day'
+          }
+          
+        }
+        ],
+      }
+    },
+  });
+</script>-->
+<!--Category wise Pie Chart-->
+<script>
+  $(function(){
+    var ctx = document.getElementById('category_pie').getContext('2d');
+    var data = {
+      labels:[{% for i in category_pie.labels %}"{{i}}",{% endfor %}],
+      datasets: [
+        {
+          label: "Category wise expense distribution",
+          data:[{% for i in category_pie.value %}"{{i}}",{% endfor %}],
+          backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850"],
+        }
+      ]
+    };
+    var options = {
+      responsive: true,
+      title: {
+        display: true,
+        position: "top",
+        text: "Category wise Expense distribution",
+        fontSize: 18,
+      },
+      legend: {
+        display: true,
+        position: "top",
+        fontSize: 16,
+      }
+    };
+
+    //create Chart class object
+    var chart = new Chart(ctx, {
+      type: "pie",
+      data: data,
+      options: options,
+    });
+  });
+</script>
+<!--Weekly Distribution-->
+<script>
+  new Chart(document.getElementById("weekday_bar"), {
+  type: 'horizontalBar',
+  data: {
+    labels: [{% for l in weekday_bar.labels %}"{{l}}",{% endfor %}],
+    datasets: [
+      {
+        label: "Amount in Rs.",
+        backgroundColor: ["#CC99C9", "#9EC1CF","#9EE09E","#FDFD97","#FEB144","#FF6663","#FFEE00"],
+        data: [{% for val in weekday_bar.value %}{{val}},{% endfor %}]
+      }
+    ]
+  },
+  options: {
+    legend: { display: false },
+    title: {
+      display: true,
+      text: 'Weekday wise expense distribution',
+      fontSize: 18
+    }
+  }
+ });
+</script>
+{% endblock content %}
+
+
+{% block js %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/jszip-2.5.0/dt-1.10.18/af-2.3.0/b-1.5.2/b-colvis-1.5.2/b-flash-1.5.2/b-html5-1.5.2/b-print-1.5.2/cr-1.5.0/fh-3.1.4/r-2.2.2/datatables.min.css"/>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/v/dt/jszip-2.5.0/dt-1.10.18/af-2.3.0/b-1.5.2/b-colvis-1.5.2/b-flash-1.5.2/b-html5-1.5.2/b-print-1.5.2/cr-1.5.0/fh-3.1.4/r-2.2.2/datatables.min.js"></script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.4/moment.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/plug-ins/1.10.19/sorting/datetime-moment.js"></script>
+
+
+<script>
+  var numrows;
+    $(document).ready( function () {
+      $.fn.dataTable.moment( 'DD-MM-YYYY' );
+      datatable = $('table.content-table').DataTable({
+    //dom: 'B<"clear">lfrtip',
+    /*buttons: {
+        name: 'primary',
+         buttons: []
+        }*/
+      });
+} );
+</script>
+</div>
+{% endblock js %}
