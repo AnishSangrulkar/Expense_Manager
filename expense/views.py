@@ -120,6 +120,11 @@ def arch_weekdaybar(user,start_date,end_date):
 @login_required
 def update(request,pk):
     if request.method == 'POST':
+        if 'delete' in request.POST:
+            exp = request.user.expenselist_set.get(pk=pk)
+            exp.delete()
+            messages.warning(request,'Selected item has been deleted permenantly..!')
+            return HttpResponseRedirect(request.session['pre_url'])
         form = UpdateForm(request.POST)
         if form.is_valid():
             if 'edit' in request.POST:
@@ -131,11 +136,6 @@ def update(request,pk):
                 exp.category = form.cleaned_data.get('category')
                 exp.save()
                 messages.success(request,'Selected item has been updated..!')
-                return HttpResponseRedirect(request.session['pre_url'])
-            if 'delete' in request.POST:
-                exp = request.user.expenselist_set.get(pk=pk)
-                exp.delete()
-                messages.warning(request,'Selected item has been deleted permenantly..!')
                 return HttpResponseRedirect(request.session['pre_url'])
     else:
         request.session['pre_url'] = request.META.get('HTTP_REFERER', '/')
